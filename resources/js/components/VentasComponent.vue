@@ -59,7 +59,6 @@
                    Pagina:{{pagination.from_page}} - {{pagination.to_page}}
                    Total: {{pagination.total_pages}}
                    </div>
-                   <br>
                </div>
             </div>
         </div>
@@ -118,11 +117,7 @@ data(){
         id_tipo:"",
         id:"",
         stock:0,
-        precio:0,
-        colores:[
-            "blanco",
-            "negro"
-        ]
+        precio:0
     }
 },
 mounted() {
@@ -131,10 +126,6 @@ mounted() {
     EventBus2.$on("producto-created", producto => {
             this.productos.unshift(producto);
     });
-    EventColor.$on('otro-color',color=>{
-        this.colores.push(color);
-    })
-    console.log(this.colores);
 },
 methods:{
     GetTipos(){

@@ -22,6 +22,10 @@ Vue.component('last-component', require('./components/LastProducts.vue').default
 Vue.component('profile-component', require('./components/ProfileComponent.vue').default);
 //se importa el componente de producto por tipo
 Vue.component('producttype-component', require('./components/ProductTypeComponent.vue').default);
+
+Vue.component('cart',require('./components/CartComponent.vue').default);
+
+Vue.component('detail',require('./components/DetailComponent.vue').default);
 //se importa el componente de vue star rating
 Vue.component('star-rating', StarRating);
 //se importa el paquete de sweet alert
@@ -39,6 +43,8 @@ window.toast = toast;
 window.EventBus = new Vue();
 //segundo evento de vue
 window.EventBus2 = new Vue();
+
+window.EventColor = new Vue();
 //renderizador de vue
 const app = new Vue({
     el: '#app',

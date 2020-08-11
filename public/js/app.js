@@ -1908,8 +1908,9 @@ module.exports = {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
+//
+//
+//
 //
 //
 //
@@ -1948,84 +1949,11 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
-      carts: [],
-      total: '0',
-      quantity: '0',
-      badge: '0'
+      carts: []
     };
   },
-  mounted: function mounted() {
-    this.viewCart();
-  },
-  methods: {
-    viewCart: function viewCart() {
-      if (localStorage.getItem('carts')) {
-        this.carts = JSON.parse(localStorage.getItem('carts'));
-        this.badge = this.carts.length;
-        this.total = this.carts.reduce(function (total, item) {
-          return total + item.cantidad * item.precio;
-        }, 0);
-      }
-    },
-    SaveOrder: function SaveOrder() {
-      var _this = this;
-
-      var data = {
-        data: this.carts
-      };
-      console.log(data);
-      axios.post('/order/store', {
-        data: data
-      }).then(function (resp) {
-        _this.carts = [];
-        _this.total = '0';
-        _this.badge = '0';
-        $('#cart-modal').modal('hide');
-        localStorage.removeItem('carts');
-        toast.fire({
-          icon: 'success',
-          title: 'Se orden a sido registrada '
-        });
-      })["catch"](function (err) {
-        console.log(err.response.data);
-      });
-    },
-    addCart: function addCart(prod) {
-      var f = _.find(this.carts, ['id', prod.id]);
-
-      if (_typeof(f) == 'object') {
-        console.log(this.quantity);
-
-        var index = _.indexOf(this.carts, f);
-
-        this.carts[index].cantidad++;
-        toast.fire({
-          icon: 'success',
-          title: 'Su orden se ah actualizado'
-        });
-        this.storeCart();
-        this.viewCart();
-      } else {
-        this.cartAdd.id = prod.id;
-        this.cartAdd.nombre = prod.nombre;
-        this.cartAdd.precio = prod.precio;
-        this.cartAdd.cantidad = this.quantity;
-        this.cartAdd.image = prod.image;
-
-        if (this.carts.push(this.cartAdd)) {
-          console.log(this.cartAdd);
-          toast.fire({
-            icon: 'success',
-            title: 'Se agrego a la orden '
-          });
-        }
-
-        this.cartAdd = {};
-        this.storeCart();
-        this.viewCart();
-      }
-    }
-  }
+  mounted: function mounted() {},
+  methods: {}
 });
 
 /***/ }),
@@ -2210,12 +2138,17 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 //
 //
 //
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
-      productos: [],
+      //varible de arreglo que obtiene los datos de paginacion
       pagination: [],
+      //variable de arreglo que obtiene los datos de los productos
+      productos: [],
+      //variable de arreglo que obtiene los productos del carrit
       carts: [],
+      //varible temporal que obtiene el  producto del carrito
       cartAdd: {
         id: '',
         nombre: '',
@@ -2223,195 +2156,302 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
         cantidad: 1,
         image: ""
       },
+      //variable que obtiene la cantidad de productos del carrito
       badge: '0',
+      //variable que inicializa la cantidad de productos del carrito
       quantity: 1,
+      //variable que obtiene el total de la orden
       total: '0',
+      //varible que obtiene los datos de busqueda
       search: '',
+      //muestra y oculta la seccion para buscar
       showSearch: false,
+      //muestra y oculta la seccion de  detalle
       showDetail: false,
+      //muestra y oculta la seccion de rating
       getRating: false,
+      //obtiene los datos del producto que se busco
       productSearch: [],
+      //obtiene los datos del detalle del producto
       detail: [],
+      //se inicializa el rating del producto
       rating: 0,
+      //variable de comentario del rating
       comment: '',
+      //obtiene el rating del usuario loggeado
       myRating: [],
+      //obtiene todos los ratings del producto
       AllRating: []
     };
   },
   methods: {
+    //envia un post a laravel para agregar el rating
     setRating: function setRating(id) {
       var _this = this;
 
+      //se envia por axios
       axios.post('/rating/new', {
         product_id: id,
         comment: this.comment,
         rating: this.rating
-      }).then(function (resp) {
-        _this.ShowRating(id);
+      }) //respuesta de que se recibe
+      .then(function (resp) {
+        //se ejecuta el metodo para mostrar todos los rating
+        _this.ShowRating(id); //se ejecuta el metodo para mostrar el rating del usuario loggeado
+
 
         _this.MyRating(id);
       });
     },
+    //metodo para mostrar los productos del carrito
     viewCart: function viewCart() {
+      //se comprueba que exitan productos en el carrito
       if (localStorage.getItem('carts')) {
-        this.carts = JSON.parse(localStorage.getItem('carts'));
-        this.badge = this.carts.length;
+        //se iguala la variable al arreglo de productos del carrito
+        this.carts = JSON.parse(localStorage.getItem('carts')); //se inicializa la cantidad de productos del carrito
+
+        this.badge = this.carts.length; //se establece el total de la orden
+
         this.total = this.carts.reduce(function (total, item) {
           return total + item.cantidad * item.precio;
         }, 0);
       }
     },
+    //metodo para agregar al carrito
     addCart: function addCart(prod) {
-      var f = _.find(this.carts, ['id', prod.id]);
+      //variable que se usa para buscar un producto en el carrito
+      var f = _.find(this.carts, ['id', prod.id]); //se comprueba si hay un producto con el id de la variable
+
 
       if (_typeof(f) == 'object') {
-        console.log(this.quantity);
+        //variable que guarda la posicion del producto repetido
+        var index = _.indexOf(this.carts, f); //se incrementa la cantida del producto repetido
 
-        var index = _.indexOf(this.carts, f);
 
-        this.carts[index].cantidad++;
+        this.carts[index].cantidad++; //se muestra una alerta de exito
+
         toast.fire({
           icon: 'success',
           title: 'Su orden se ah actualizado'
-        });
-        this.storeCart();
-        this.viewCart();
-      } else {
-        this.cartAdd.id = prod.id;
-        this.cartAdd.nombre = prod.nombre;
-        this.cartAdd.precio = prod.precio;
-        this.cartAdd.cantidad = this.quantity;
-        this.cartAdd.image = prod.image;
+        }); //se ejecuta el metodo para guardar el producto en el carrito
 
-        if (this.carts.push(this.cartAdd)) {
-          toast.fire({
-            icon: 'success',
-            title: 'Se agrego a la orden '
-          });
+        this.storeCart(); //se ejecuta el metodo para ver los carritos del producto
+
+        this.viewCart();
+      } //si el producto no existe en el carrito
+      else {
+          //se iguala a la variable el id del producto
+          this.cartAdd.id = prod.id; //se iguala a la variable el nombre del producto
+
+          this.cartAdd.nombre = prod.nombre; //se iguala a la variable el precio del producto
+
+          this.cartAdd.precio = prod.precio; //se iguala a la variable la cantidad del producto
+
+          this.cartAdd.cantidad = this.quantity; //se iguala a la variable la imagen del producto
+
+          this.cartAdd.image = prod.image; //se agrega producto al arreglo del carrito
+
+          if (this.carts.push(this.cartAdd)) {
+            //se muestra una alerta de exito
+            toast.fire({
+              icon: 'success',
+              title: 'Se agrego a la orden '
+            });
+          } //se vacia la variable temporal de los productos
+
+
+          this.cartAdd = {}; //se ejecuta el metodo para guardar el producto
+
+          this.storeCart(); //se ejecuta el metodo para ver los productos del carrito
+
+          this.viewCart();
         }
-
-        this.cartAdd = {};
-        this.storeCart();
-        this.viewCart();
-      }
     },
+    //metodo para eliminar el producto del carrito
     removeCart: function removeCart(cart) {
-      var f = _.find(this.carts, ['id', cart.id]);
+      //variable que busca si el producto ya existe en el carrito
+      var f = _.find(this.carts, ['id', cart.id]); //se verifica si existe el producto
+
 
       if (_typeof(f) == 'object') {
-        var index = _.indexOf(this.carts, f);
+        //se guarda la pocision del producto repetido
+        var index = _.indexOf(this.carts, f); //se verifica que la cantidad sea menor o igual a uno
+
 
         if (this.carts[index].cantidad <= 1) {
-          this.carts.splice(cart, 1);
+          //se elimina el producto del carrito
+          this.carts.splice(cart, 1); //se ejecuta el metodo de guardar en el carrito
+
           this.storeCart();
-        } else {
-          this.carts[index].cantidad--;
-          this.storeCart();
-        }
+        } //si la cantidad del producto es mayor a uno
+        else {
+            //se reduce la cantidad del producto
+            this.carts[index].cantidad--; //se ejecuta el metodo para guardar el carrito
+
+            this.storeCart();
+          }
       }
     },
+    //metodo que guarda el producto seleccionado en el carrito
     storeCart: function storeCart() {
-      var parsed = JSON.stringify(this.carts);
-      localStorage.setItem('carts', parsed);
+      //variable que almacena el arreglo del producto convertido
+      var parsed = JSON.stringify(this.carts); //se agrega el producto al carrito
+
+      localStorage.setItem('carts', parsed); //se ejecuta el metodo para actualizar el carrito
+
       this.viewCart();
     },
+    //metodo que muestra todos los productos en la base de datos
     GetResult: function GetResult(url) {
       var _this2 = this;
 
-      axios.get('/producto/show').then(function (_ref) {
+      //se recibe por axios
+      axios.get('/producto/show') //respuesta que envia laravel
+      .then(function (_ref) {
         var datos = _ref.data;
-        _this2.productos = datos.data;
+        //la variable se iguala al arreglo que envia laravel
+        _this2.productos = datos.data; //se usa para la paginacion
+
         _this2.pagination = {
+          //pagina actual
           current_page: datos.meta.current_page,
+          //pagina anterior de la paginacion
           last_page: datos.meta.last_page,
+          //pagina de destino de la paginacion
           from_page: datos.meta.from,
+          //numero de resultados de la paginacion
           to_page: datos.meta.to,
+          //total de paginas en la paginacion
           total_pages: datos.meta.total,
           path_page: datos.meta.path + "?page=",
+          //primera pagina de la paginacion
           first_link: datos.links.first,
+          //ultima pagina de la paginacion
           last_link: datos.links.last,
+          //pagina anterior de la paginacion
           prev_link: datos.links.prev,
+          //pagina siguiente de la paginacion
           next_link: datos.links.next
         };
-      })["catch"](function (err) {
+      }) //en caso de error
+      ["catch"](function (err) {
+        //se muestra por pantalla el mensaje de error
         console.log(err.response.data);
       });
     },
+    //metodo para guardar la orden en la base de datos
     SaveOrder: function SaveOrder() {
       var _this3 = this;
 
+      //variable que obtiene los productos del carrito
       var data = {
         data: this.carts
-      };
-      console.log(data);
+      }; //se envia un post por axios a laravel con los datos del carrito
+
       axios.post('/order/store', {
         data: data
-      }).then(function (resp) {
-        _this3.carts = [];
-        _this3.total = '0';
-        _this3.badge = '0';
-        $('#cart-modal').modal('hide');
-        localStorage.removeItem('carts');
+      }) //respuesta de laravel
+      .then(function (resp) {
+        //se vacia el arreglo de productos del carrito
+        _this3.carts = []; //se vacia el total de la compra
+
+        _this3.total = '0'; //se vacia la cantidad de productos del carrito
+
+        _this3.badge = '0'; //se cierra el modal del carrito
+
+        $('#cart-modal').modal('hide'); //se vacia el local storage
+
+        localStorage.removeItem('carts'); //se muestra una alerta
+
         toast.fire({
           icon: 'success',
           title: 'Se orden a sido registrada '
         });
-      })["catch"](function (err) {
+      }) //en caso de error
+      ["catch"](function (err) {
+        //se muestra el mensaje de error en la consola
         console.log(err.response.data);
       });
     },
+    //metodo para buscar productos en el catalogo
     Search: function Search() {
       var _this4 = this;
 
+      //se envia un post por axios a laravel con el nombre del producto
       axios.post('/producto/search', {
         nombre: this.search
-      }).then(function (_ref2) {
+      }) //respuesta de laravel
+      .then(function (_ref2) {
         var prod = _ref2.data;
-        _this4.productSearch = prod.data;
-        console.log(_this4.productSearch);
+        //la variable recibe el arreglo de productos con el nombre enviado
+        _this4.productSearch = prod.data; //se muestra la seccion de buscar
+
         _this4.showSearch = true;
       });
     },
+    //metodo para ver el detalle del producto
     Detail: function Detail(id) {
       var _this5 = this;
 
-      this.ShowRating(id);
-      this.MyRating(id);
-      axios.get('/producto/detail/' + id).then(function (resp) {
-        _this5.detail = resp.data.data;
+      //se ejecuta el metodo para obtener el rating
+      this.ShowRating(id); //se ejecuta el metodo para obtener el rating del usuario loggeado
+
+      this.MyRating(id); //se recibe un get
+
+      axios.get('/producto/detail/' + id) //respuesta de laravel
+      .then(function (resp) {
+        //la variable recibe el arreglo de datos que envia laravel
+        _this5.detail = resp.data.data; //se muestra la seccion de detalle
+
         _this5.showDetail = true;
-      })["catch"](function (err) {
+      }) //en caso de error
+      ["catch"](function (err) {
+        //se muestra el mensaje de error
         console.log(err.response.data);
       });
     },
+    //metodo que obtiene el rating del producto seleccionado
     ShowRating: function ShowRating(id) {
       var _this6 = this;
 
+      //se envia por axios el id por post a laravel
       axios.post('/rating/all', {
         id: id
-      }).then(function (_ref3) {
+      }) //respuesta de laravel
+      .then(function (_ref3) {
         var datos = _ref3.data;
+        //la varaiabel recibe el arreglo de datos
         _this6.AllRating = datos.data;
-      })["catch"](function (err) {
+      }) //en caso de error
+      ["catch"](function (err) {
+        //se muestra el mensaje de error
         console.log(err.response.data);
       });
     },
+    //metodo para obtener el rating del usuario loggeado
     MyRating: function MyRating(id) {
       var _this7 = this;
 
+      //se envia un post con axios a laravel con el id del producto
       axios.post('/rating/show', {
         id: id
-      }).then(function (_ref4) {
+      }) //respuesta de laravel
+      .then(function (_ref4) {
         var datos = _ref4.data;
+        //la variable recibe el arreglo de datos
         _this7.myRating = datos.data;
-        console.log(_this7.myRating);
-      })["catch"](function (err) {
+      }) //en caso de error
+      ["catch"](function (err) {
+        //se muestra el mensaje de error
         console.log(err.response.data);
       });
     }
   },
+  //metodos que se ejuctan al inicializar el componente
   mounted: function mounted() {
-    this.GetResult('/producto/show');
+    //se ejecuta el metodo para obtener todos los productos
+    this.GetResult('/producto/show'); //se ejecuta el metodo para ver los productos del carrito
+
     this.viewCart();
   }
 });
@@ -2429,6 +2469,8 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 __webpack_require__.r(__webpack_exports__);
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+//
+//
 //
 //
 //
@@ -2524,7 +2566,6 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
       var data = {
         data: this.carts
       };
-      console.log(data);
       axios.post('/order/store', {
         data: data
       }).then(function (resp) {
@@ -2554,8 +2595,6 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
       var f = _.find(this.carts, ['id', prod.id]);
 
       if (_typeof(f) == 'object') {
-        console.log(this.quantity);
-
         var index = _.indexOf(this.carts, f);
 
         this.carts[index].cantidad++;
@@ -2620,9 +2659,6 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 __webpack_require__.r(__webpack_exports__);
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-//
 //
 //
 //
@@ -2741,183 +2777,294 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
-    var _ref;
-
-    return _ref = {
+    return {
+      //almacena el arreglo de producto que envia laravel
       products: [],
+      //almacena los tipos de comida que envia laravel
       types: [],
+      //se usa para mostrar y ocultar la lista de productos
       showProducts: false,
+      //almacena la cantidad de productos en el carrito
       badge: '0',
+      //almacena los productos del carrito
       carts: [],
+      //variable temporal para almacenar el producto seleccionado
       cartAdd: {
         id: '',
         nombre: '',
         precio: '',
         cantidad: 1,
         image: ""
-      }
-    }, _defineProperty(_ref, "badge", '0'), _defineProperty(_ref, "quantity", 1), _defineProperty(_ref, "total", '0'), _defineProperty(_ref, "showDetail", false), _defineProperty(_ref, "getRating", false), _defineProperty(_ref, "detail", []), _defineProperty(_ref, "rating", 0), _defineProperty(_ref, "comment", ''), _defineProperty(_ref, "myRating", []), _defineProperty(_ref, "AllRating", []), _ref;
+      },
+      //variable que inicializa la cantidad del producto en el carrito
+      quantity: 1,
+      //almacena el total de la orden
+      total: '0',
+      //se usa para mostrar y ocultar el detalle del producto
+      showDetail: false,
+      //se usa para mostrar y ocultar el rating del producto
+      getRating: false,
+      //almacena el arreglo que envia laravel del detalle del producto
+      detail: [],
+      //inicializa el rating del producto
+      rating: 0,
+      //almacena el comentario del producto que se envia a laravel
+      comment: '',
+      //almacena el rating del producto del usuario loggueado
+      myRating: [],
+      //almacena todos los ratings que envia laravel
+      AllRating: []
+    };
   },
   mounted: function mounted() {
-    this.GetTypes('/product/getTypes');
+    //metodo para obtener los tipos de comida al inicializar el componente
+    this.GetTypes('/product/getTypes'); //metodo para obtener los productos del carrito al inicializar el componente
+
     this.viewCart();
   },
   methods: {
+    //Metodo para guardar la orden en la base de datos
     SaveOrder: function SaveOrder() {
       var _this = this;
 
+      //variable que contiene cada arreglo de productos
       var data = {
+        //igualamos la data a la variable de carts que contiene la orden
         data: this.carts
-      };
-      console.log(data);
+      }; //metodo de axios que envia por post la informacion
+
       axios.post('/order/store', {
         data: data
-      }).then(function (resp) {
-        _this.carts = [];
-        _this.total = '0';
-        _this.badge = '0';
-        $('#cart-modal').modal('hide');
-        localStorage.removeItem('carts');
+      }) //respuesta de el envio de datos
+      .then(function (resp) {
+        //la variable que contenia los productos del carrito de vacia
+        _this.carts = []; //la variable que tenia el total se vacia
+
+        _this.total = '0'; //la variable que tenia la cantidad de productos en el carrito se vacia
+
+        _this.badge = '0'; //el modal de el carrito se cierra
+
+        $('#cart-modal').modal('hide'); //se vacia el localstorage
+
+        localStorage.removeItem('carts'); //se muestra una alerta
+
         toast.fire({
           icon: 'success',
           title: 'Se orden a sido registrada '
         });
-      })["catch"](function (err) {
+      }) //en caso de que un error ocurra
+      ["catch"](function (err) {
+        //se muestra el error por consola
         console.log(err.response.data);
       });
     },
+    //metodo para agregar un producto al carrito
     addCart: function addCart(prod) {
-      var f = _.find(this.carts, ['id', prod.id]);
+      /*variable que se creo para buscar el id del
+      producto que se acaba de agregar para evitar
+      productos repetidos*/
+      var f = _.find(this.carts, ['id', prod.id]); //se verifica si el id existe en el carrito
+
 
       if (_typeof(f) == 'object') {
-        console.log(this.quantity);
-
+        /*se crea una variable que almacena la posicion
+        del producto repetido*/
         var index = _.indexOf(this.carts, f);
+        /*se incrementa la cantidad del producto
+        repetido en el carrito*/
 
-        this.carts[index].cantidad++;
+
+        this.carts[index].cantidad++; //se muestra una alerta de exito
+
         toast.fire({
           icon: 'success',
           title: 'Su orden se ah actualizado'
         });
+        /*se ejecuta el metodo para guardar
+        el producto en el carrito*/
+
         this.storeCart();
-        this.viewCart();
+        /*se ejecuta el metodo para ver
+        todos los productos del carrito*/
+
+        this.viewCart(); //si el producto no esta repetido
       } else {
+        /*se guarda el id el producto en
+        el objeto cartAdd*/
         this.cartAdd.id = prod.id;
+        /*se guarda el nombre el producto en
+        el objeto cartAdd*/
+
         this.cartAdd.nombre = prod.nombre;
+        /*se guarda el precio el producto en
+        el objeto cartAdd*/
+
         this.cartAdd.precio = prod.precio;
+        /*se iguala la cantidad del objeto
+        con la variable de cantidad*/
+
         this.cartAdd.cantidad = this.quantity;
-        this.cartAdd.image = prod.image;
+        /*se guarda la images del producto en
+        el objeto cartAdd*/
+
+        this.cartAdd.image = prod.image; //se comprueba que el producto se agrego
 
         if (this.carts.push(this.cartAdd)) {
+          //se muestra una alerta de exito
           toast.fire({
             icon: 'success',
             title: 'Se agrego a la orden '
           });
-        }
+        } //Se vacia el objeto cartAdd
+
 
         this.cartAdd = {};
+        /*se ejecuta el metodo para guardar
+        el producto en el carrito*/
+
         this.storeCart();
+        /*se ejecuta el metodo para ver
+        todos los productos del carrito*/
+
         this.viewCart();
       }
     },
     removeCart: function removeCart(cart) {
-      var f = _.find(this.carts, ['id', cart.id]);
+      /*variable que se creo para buscar el id del
+      producto que se eliminara del carrito*/
+      var f = _.find(this.carts, ['id', cart.id]); //se compreba que el id exista
+
 
       if (_typeof(f) == 'object') {
-        var index = _.indexOf(this.carts, f);
+        //variable que almacena la pocision del producto repetido
+        var index = _.indexOf(this.carts, f); //se verifica que el producto a eliminar sea menor o igual a uno
+
 
         if (this.carts[index].cantidad <= 1) {
-          this.carts.splice(cart, 1);
-          this.storeCart();
+          //se elimina del arreglo de productos en el carrito
+          this.carts.splice(cart, 1); //se ejecuta el metodo que guarda el carrito para refrescar
+
+          this.storeCart(); //si la cantidad es mayor a uno
         } else {
-          this.carts[index].cantidad--;
+          //la cantidad del producto disminuye uno
+          this.carts[index].cantidad--; //se ejecuta el metodo que guarda el carrito para refrescar
+
           this.storeCart();
         }
       }
     },
+    //metodo que guarda el producto seleccionado en el carrito
     storeCart: function storeCart() {
-      var parsed = JSON.stringify(this.carts);
-      localStorage.setItem('carts', parsed);
+      //variable que almacena el arreglo del producto convertido
+      var parsed = JSON.stringify(this.carts); //se agrega el producto al carrito
+
+      localStorage.setItem('carts', parsed); //se ejecuta el metodo para actualizar el carrito
+
       this.viewCart();
     },
+    //metodo que recibe el id del producto para obtener el detalle
     Detail: function Detail(id) {
       var _this2 = this;
 
-      this.ShowRating(id);
-      this.MyRating(id);
-      axios.get('/producto/detail/' + id).then(function (resp) {
-        _this2.detail = resp.data.data;
+      //se ejecuta el metodo para obtener el rating de producto con el id
+      this.ShowRating(id); //se ejecuta el metodo para obtener el rating del usuario loggeado
+
+      this.MyRating(id); //se envia a axios
+
+      axios.get('/producto/detail/' + id) //respuesta de axios
+      .then(function (resp) {
+        //se almacena en el arreglo de detalle la data que envia laravel
+        _this2.detail = resp.data.data; //se muestra el apartado de detalle y se oculta la lista de productos
+
         _this2.showDetail = true;
-      })["catch"](function (err) {
+      }) //si ocurre un error
+      ["catch"](function (err) {
+        //se muestra el error por consola
         console.log(err.response.data);
       });
     },
+    //metodo que recibe el id de un producto para obtener el rating
     ShowRating: function ShowRating(id) {
       var _this3 = this;
 
+      //se envia un post por axios con el id
       axios.post('/rating/all', {
         id: id
-      }).then(function (_ref2) {
-        var datos = _ref2.data;
+      }) //respuesta de axios
+      .then(function (_ref) {
+        var datos = _ref.data;
+        //se iguala el arreglo con la data que envia laravel
         _this3.AllRating = datos.data;
-      })["catch"](function (err) {
+      }) //si ocurre un error
+      ["catch"](function (err) {
+        //se muestra por consola
         console.log(err.response.data);
       });
     },
+    //metodo que recibe un id para obtener el rating del usuario loggeado
     MyRating: function MyRating(id) {
       var _this4 = this;
 
+      //se envia un post por axios
       axios.post('/rating/show', {
         id: id
-      }).then(function (_ref3) {
-        var datos = _ref3.data;
+      }) //respuesta de axios
+      .then(function (_ref2) {
+        var datos = _ref2.data;
+        //se iguala el arreglo con la data que envia laravel
         _this4.myRating = datos.data;
-        console.log(_this4.myRating);
-      })["catch"](function (err) {
+      }) //en caso de error
+      ["catch"](function (err) {
+        //se muestra por consola el error
         console.log(err.response.data);
       });
     },
+    //metodo para obtener los productos del carrito
     viewCart: function viewCart() {
+      //se verifica que local storage tenga productos en el carrito
       if (localStorage.getItem('carts')) {
-        this.carts = JSON.parse(localStorage.getItem('carts'));
-        this.badge = this.carts.length;
+        //arreglo que almacena los productos del carrito
+        this.carts = JSON.parse(localStorage.getItem('carts')); //se actualiza la cantidad del badge
+
+        this.badge = this.carts.length; //se returna el total de la prden
+
         this.total = this.carts.reduce(function (total, item) {
           return total + item.cantidad * item.precio;
         }, 0);
       }
     },
+    //metodo para obtener todos los tipos de comida
     GetTypes: function GetTypes(url) {
       var _this5 = this;
 
-      axios.get(url).then(function (_ref4) {
-        var datos = _ref4.data;
+      //se envia un get por axios
+      axios.get(url) //respuesta de axios
+      .then(function (_ref3) {
+        var datos = _ref3.data;
+        //se iguala el arreglo con la data que envia laravel
         _this5.types = datos.data;
       });
     },
+    //metodo que obtiene los productos por el id del tipo
     GetProducts: function GetProducts(id) {
       var _this6 = this;
 
+      //se envia un post por axios con el id del tipo
       axios.post('/producto/searchType', {
         tipo: id
-      }).then(function (_ref5) {
-        var datos = _ref5.data;
-        _this6.products = datos.data;
+      }) //respuesta de axios
+      .then(function (_ref4) {
+        var datos = _ref4.data;
+        //se igauala el arreglo con la data que envia laravel
+        _this6.products = datos.data; //se muestra el listado de productos
+
         _this6.showProducts = true;
-        console.log(_this6.products);
+      }) //en caso de error
+      ["catch"](function (err) {
+        //se muestra por consola el error
+        console.log(err.response.data);
       });
     }
-  },
-  Detail: function Detail(id) {
-    var _this7 = this;
-
-    this.ShowRating(id);
-    this.MyRating(id);
-    axios.get('/producto/detail/' + id).then(function (resp) {
-      _this7.detail = resp.data.data;
-      _this7.showDetail = true;
-    })["catch"](function (err) {
-      console.log(err.response.data);
-    });
   }
 });
 
@@ -3039,6 +3186,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -3050,7 +3198,8 @@ __webpack_require__.r(__webpack_exports__);
       id_tipo: "",
       id: "",
       stock: 0,
-      precio: 0
+      precio: 0,
+      colores: ["blanco", "negro"]
     };
   },
   mounted: function mounted() {
@@ -3061,6 +3210,10 @@ __webpack_require__.r(__webpack_exports__);
     EventBus2.$on("producto-created", function (producto) {
       _this.productos.unshift(producto);
     });
+    EventColor.$on('otro-color', function (color) {
+      _this.colores.push(color);
+    });
+    console.log(this.colores);
   },
   methods: {
     GetTipos: function GetTipos() {
@@ -3215,6 +3368,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -3234,6 +3388,10 @@ __webpack_require__.r(__webpack_exports__);
     });
   },
   methods: {
+    OtroColor: function OtroColor() {
+      var color = "naranja";
+      EventColor.$emit('otro-color', color);
+    },
     onImageChange: function onImageChange(e) {
       var files = e.target.files || e.dataTransfer.files;
       if (!files.length) return;
@@ -3342,102 +3500,137 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
+      //variable que obtiene el arreglo con los usuarios
       user: [],
+      //variable que obtiene el nombre del input de usuario
       name: "",
+      //variable que obtiene el telefono del input de usuario
       telefono: "",
+      //variable que obtiene la direccion del input de usuario
       direccion: "",
-      avatar: "",
-      image: ""
+      //variable que obtiene el avatar del in input de usuario
+      avatar: ""
     };
   },
   mounted: function mounted() {
     var _this = this;
 
-    axios.get('/user/profile').then(function (_ref) {
+    //metodo que obtiene el perfil del usuario loggueado
+    axios //se obtiene por get desde axios
+    .get('/user/profile') //respuesta de axios
+    .then(function (_ref) {
       var datos = _ref.data;
+      //igualamos la variable a los datos que envia laravel
       _this.user = datos.data;
-      console.log(_this.user);
-    })["catch"](function (err) {
+    }) //en caso de error
+    ["catch"](function (err) {
+      //se muestra el error por consola
       console.log(err.response.data);
     });
   },
   methods: {
+    //metodo para mostrar la imagen que se selecciono
     onImageChange: function onImageChange(e) {
       var _this2 = this;
 
-      var reader = new FileReader();
-      reader.readAsDataURL(e.target.files[0]);
+      //variable de instancia del fileReader
+      var reader = new FileReader(); //lee la data de la url de la imagen
+
+      reader.readAsDataURL(e.target.files[0]); //cuando la imagen se carga
 
       reader.onload = function (e) {
-        _this2.avatar = e.target.result;
+        //se iguala la variable con el resultado
+        _this2.avatar = e.target.result; //me cambia el src para mostrar la imagen
+
         document.getElementById('img').src = reader.result;
       };
     },
+    //metodo para editar la imformacion del usuario
     EditUser: function EditUser() {
       var _this3 = this;
 
-      this.name = document.getElementById('name').value;
-      this.direccion = document.getElementById('direccion').value;
-      this.telefono = document.getElementById('telefono').value;
+      //se iguala la variable con el valor que tiene el input name
+      this.name = document.getElementById('name').value; //se iguala la variable con el valor que tiene el input direccion
+
+      this.direccion = document.getElementById('direccion').value; //se iguala la variable con el valor que tiene el input de telefono
+
+      this.telefono = document.getElementById('telefono').value; //se verifica si se ah sellecionado una imagen
 
       if (this.avatar != "") {
+        //se verifica que los datos no esten vacios
         if (this.name != "" && this.direccion != "" && this.telefono != "") {
-          axios.post('user/update', {
+          //se envia un post por axios
+          axios.post('user/update', //datos que lleva el post
+          {
             name: this.name,
             direccion: this.direccion,
             telefono: this.telefono,
             avatar: this.avatar
-          }).then(function (resp) {
+          }) //respuesta de axios
+          .then(function (resp) {
+            //se verifica la respuesta que envio laravel
             if (resp.data === "success") {
+              //si es correcto se muestra una alerta
               toast.fire({
                 title: 'Su informacion se actualizo',
                 timer: 2000,
                 icon: 'success'
-              });
+              }); //se redirecciona a la vista home
+
               setTimeout(function () {
                 window.location.href = '/home';
               }, 2000);
             }
           });
-        } else {
-          toast.fire({
-            title: 'Datos vacios',
-            icon: 'warning'
-          });
-        }
-      } else {
-        swal.fire({
-          icon: 'warning',
-          title: 'Advertencia!! No seleccionaste ninguna foto',
-          showConfirmButton: true,
-          showCancelButton: true,
-          confirmButtonText: 'Aceptar',
-          confirmButtonColor: '#3085b6',
-          cancelButtonColor: '#d33',
-          cancelButtonText: 'Cancelar',
-          text: 'Se guardara el avatar por defecto'
-        }).then(function (result) {
-          if (result.value) {
-            axios.post('user/update', {
-              name: _this3.name,
-              direccion: _this3.direccion,
-              telefono: _this3.telefono
-            }).then(function (resp) {
-              console.log(resp);
-
-              if (resp.data === "success") {
-                toast.fire({
-                  title: 'Su informacion se actualizo',
-                  icon: 'success'
-                });
-                setTimeout(function () {
-                  window.location.href = '/home';
-                }, 2000);
-              }
+        } //si hay datos vacios
+        else {
+            //se muestra una alerts
+            toast.fire({
+              title: 'Datos vacios',
+              icon: 'warning'
             });
           }
-        });
-      }
+      } //si no se ahsellecionado una imagem
+      else {
+          // se muestra una alerta de advertencia
+          swal.fire({
+            icon: 'warning',
+            title: 'Advertencia!! No seleccionaste ninguna foto',
+            showConfirmButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#3085b6',
+            cancelButtonColor: '#d33',
+            cancelButtonText: 'Cancelar',
+            text: 'Se guardara el avatar por defecto'
+          }) //respuesta del usuario
+          .then(function (result) {
+            //si el usuario acepta la advertencia
+            if (result.value) {
+              //se envia un post con axios
+              axios.post('user/update', //datos que envia axios
+              {
+                name: _this3.name,
+                direccion: _this3.direccion,
+                telefono: _this3.telefono
+              }) //respuesta que envia laravel
+              .then(function (resp) {
+                //si verifica la respuesta
+                if (resp.data === "success") {
+                  //si es correcta se muestra una alerta
+                  toast.fire({
+                    title: 'Su informacion se actualizo',
+                    icon: 'success'
+                  }); //se redirige a la vista home
+
+                  setTimeout(function () {
+                    window.location.href = '/home';
+                  }, 2000);
+                }
+              });
+            }
+          });
+        }
     }
   }
 });
@@ -43270,19 +43463,25 @@ var render = function() {
           _vm._v(" "),
           _c("div", { staticClass: "modal-footer" }, [
             _vm._v(
-              "\n            Total: $" + _vm._s(_vm.total) + "  \n            "
+              "\n                        Total: $" +
+                _vm._s(_vm.total) +
+                "  \n                        "
             ),
             _c(
               "button",
               {
-                staticClass: "btn btn-sm btn-order",
+                staticClass: "btn btn-sm btn-success",
                 on: {
                   click: function($event) {
                     return _vm.SaveOrder(_vm.carts)
                   }
                 }
               },
-              [_vm._v("\n            checkout\n            ")]
+              [
+                _vm._v(
+                  "\n                            checkout\n                        "
+                )
+              ]
             )
           ])
         ])
@@ -43296,7 +43495,7 @@ var staticRenderFns = [
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
     return _c("div", { staticClass: "modal-header" }, [
-      _c("h5", { staticClass: "modal-title" }, [_vm._v("Modal right")]),
+      _c("h5", { staticClass: "modal-title" }, [_vm._v("Tu carrito")]),
       _vm._v(" "),
       _c(
         "button",
@@ -43535,13 +43734,13 @@ var render = function() {
                   ])
                 ]),
                 _vm._v(" "),
-                _c("div", [
-                  _c("p", { staticClass: "lead text-center text-muted" }, [
-                    _vm._v("Comentarios acerca del producto")
-                  ]),
-                  _vm._v(" "),
-                  _c(
-                    "div",
+                _c(
+                  "div",
+                  [
+                    _c("p", { staticClass: "lead text-center text-muted" }, [
+                      _vm._v("Comentarios acerca del producto")
+                    ]),
+                    _vm._v(" "),
                     _vm._l(_vm.AllRating, function(comment) {
                       return _c(
                         "div",
@@ -43566,7 +43765,7 @@ var render = function() {
                               [
                                 _vm._v(
                                   _vm._s(comment.user) +
-                                    "\n                          "
+                                    "\n                                "
                                 ),
                                 _c("star-rating", {
                                   attrs: {
@@ -43591,10 +43790,10 @@ var render = function() {
                           _c("hr")
                         ]
                       )
-                    }),
-                    0
-                  )
-                ])
+                    })
+                  ],
+                  2
+                )
               ])
             ])
           ])
@@ -43942,13 +44141,13 @@ var render = function() {
           _vm._v(" "),
           _c("div", { staticClass: "col-md-4" }, [
             _vm._v(
-              "\n                 Pagina:" +
+              "\n            Pagina:" +
                 _vm._s(_vm.pagination.from_page) +
                 " - " +
                 _vm._s(_vm.pagination.to_page) +
-                "\n                 Total: " +
+                "\n            Total: " +
                 _vm._s(_vm.pagination.total_pages) +
-                "\n                 "
+                "\n        "
             )
           ])
         ])
@@ -44014,9 +44213,9 @@ var render = function() {
               _vm._v(" "),
               _c("div", { staticClass: "modal-footer" }, [
                 _vm._v(
-                  "\n            Total: $" +
+                  "\n                    Total: $" +
                     _vm._s(_vm.total) +
-                    "  \n            "
+                    "  \n                    "
                 ),
                 _c(
                   "button",
@@ -44028,7 +44227,11 @@ var render = function() {
                       }
                     }
                   },
-                  [_vm._v("\n            checkout\n            ")]
+                  [
+                    _vm._v(
+                      "\n                        checkout\n                    "
+                    )
+                  ]
                 )
               ])
             ])
@@ -44254,9 +44457,9 @@ var render = function() {
               _vm._v(" "),
               _c("div", { staticClass: "modal-footer" }, [
                 _vm._v(
-                  "\n              Total: $" +
+                  "\n                    Total: $" +
                     _vm._s(_vm.total) +
-                    "  \n              "
+                    "  \n                    "
                 ),
                 _c(
                   "button",
@@ -44268,7 +44471,11 @@ var render = function() {
                       }
                     }
                   },
-                  [_vm._v("\n              checkout\n              ")]
+                  [
+                    _vm._v(
+                      "\n                        checkout\n                    "
+                    )
+                  ]
                 )
               ])
             ])
@@ -44360,6 +44567,7 @@ var render = function() {
     _vm._v(" "),
     _c("br"),
     _c("br"),
+    _vm._v(" "),
     _vm.showDetail === false
       ? _c("nav", { attrs: { "aria-label": "Page breadcrumb" } }, [
           _c(
@@ -44635,13 +44843,13 @@ var render = function() {
                   ])
                 ]),
                 _vm._v(" "),
-                _c("div", [
-                  _c("p", { staticClass: "lead text-center text-muted" }, [
-                    _vm._v("Comentarios acerca del producto")
-                  ]),
-                  _vm._v(" "),
-                  _c(
-                    "div",
+                _c(
+                  "div",
+                  [
+                    _c("p", { staticClass: "lead text-center text-muted" }, [
+                      _vm._v("Comentarios acerca del producto")
+                    ]),
+                    _vm._v(" "),
                     _vm._l(_vm.AllRating, function(comment) {
                       return _c(
                         "div",
@@ -44666,7 +44874,7 @@ var render = function() {
                               [
                                 _vm._v(
                                   _vm._s(comment.user) +
-                                    "\n                          "
+                                    "\n                                "
                                 ),
                                 _c("star-rating", {
                                   attrs: {
@@ -44686,15 +44894,13 @@ var render = function() {
                               },
                               [_vm._v(_vm._s(comment.comment))]
                             )
-                          ]),
-                          _vm._v(" "),
-                          _c("hr")
+                          ])
                         ]
                       )
-                    }),
-                    0
-                  )
-                ])
+                    })
+                  ],
+                  2
+                )
               ])
             ])
           ])
@@ -44761,9 +44967,9 @@ var render = function() {
               _vm._v(" "),
               _c("div", { staticClass: "modal-footer" }, [
                 _vm._v(
-                  "\n            Total: $" +
+                  "\n                    Total: $" +
                     _vm._s(_vm.total) +
-                    "  \n            "
+                    "  \n                    "
                 ),
                 _c(
                   "button",
@@ -44775,7 +44981,11 @@ var render = function() {
                       }
                     }
                   },
-                  [_vm._v("\n            checkout\n            ")]
+                  [
+                    _vm._v(
+                      "\n                        checkout\n                    "
+                    )
+                  ]
                 )
               ])
             ])
@@ -45049,7 +45259,9 @@ var render = function() {
                 _vm._s(_vm.pagination.total_pages) +
                 "\n               "
             )
-          ])
+          ]),
+          _vm._v(" "),
+          _c("br")
         ])
       ])
     ]),
@@ -45275,6 +45487,8 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "container mb-5" }, [
+    _c("button", { on: { click: _vm.OtroColor } }, [_vm._v("Otro color XD")]),
+    _vm._v(" "),
     _c(
       "button",
       {
@@ -58489,42 +58703,64 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue_star_rating__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(vue_star_rating__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var sweetalert2__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! sweetalert2 */ "./node_modules/sweetalert2/dist/sweetalert2.all.js");
 /* harmony import */ var sweetalert2__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(sweetalert2__WEBPACK_IMPORTED_MODULE_1__);
-__webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
+//se requiere el paquete de bootstrap
+__webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js"); //se requiere el paquete de vue
 
-window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.js");
 
-Vue.component('type-component', __webpack_require__(/*! ./components/TypeComponent.vue */ "./resources/js/components/TypeComponent.vue")["default"]);
-Vue.component('producto-form', __webpack_require__(/*! ./components/ProductoFormComponent.vue */ "./resources/js/components/ProductoFormComponent.vue")["default"]);
-Vue.component('producto-component', __webpack_require__(/*! ./components/ProductoComponent.vue */ "./resources/js/components/ProductoComponent.vue")["default"]);
-Vue.component('type-form', __webpack_require__(/*! ./components/TypeFormComponent.vue */ "./resources/js/components/TypeFormComponent.vue")["default"]);
-Vue.component('user-component', __webpack_require__(/*! ./components/UserComponent.vue */ "./resources/js/components/UserComponent.vue")["default"]);
-Vue.component('catalogo-component', __webpack_require__(/*! ./components/CatalogoComponent.vue */ "./resources/js/components/CatalogoComponent.vue")["default"]);
-Vue.component('last-component', __webpack_require__(/*! ./components/LastProducts.vue */ "./resources/js/components/LastProducts.vue")["default"]);
-Vue.component('cart-component', __webpack_require__(/*! ./components/CartComponent.vue */ "./resources/js/components/CartComponent.vue")["default"]);
-Vue.component('profile-component', __webpack_require__(/*! ./components/ProfileComponent.vue */ "./resources/js/components/ProfileComponent.vue")["default"]);
+window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.js"); //se importa el paquete de vue star rating
+
+ //se importa  el componente de tipo
+
+Vue.component('type-component', __webpack_require__(/*! ./components/TypeComponent.vue */ "./resources/js/components/TypeComponent.vue")["default"]); //se importa el componente del formulario de producto
+
+Vue.component('producto-form', __webpack_require__(/*! ./components/ProductoFormComponent.vue */ "./resources/js/components/ProductoFormComponent.vue")["default"]); //se importa el componente de producto
+
+Vue.component('producto-component', __webpack_require__(/*! ./components/ProductoComponent.vue */ "./resources/js/components/ProductoComponent.vue")["default"]); //se importa el componente del formulario del formulario de tipo
+
+Vue.component('type-form', __webpack_require__(/*! ./components/TypeFormComponent.vue */ "./resources/js/components/TypeFormComponent.vue")["default"]); //se importa el componente de usuario
+
+Vue.component('user-component', __webpack_require__(/*! ./components/UserComponent.vue */ "./resources/js/components/UserComponent.vue")["default"]); //se importa el componente de catalogo
+
+Vue.component('catalogo-component', __webpack_require__(/*! ./components/CatalogoComponent.vue */ "./resources/js/components/CatalogoComponent.vue")["default"]); //se importa el componente que obtiene los ultimos  productos
+
+Vue.component('last-component', __webpack_require__(/*! ./components/LastProducts.vue */ "./resources/js/components/LastProducts.vue")["default"]); //se importa el componente de perfil de usuario
+
+Vue.component('profile-component', __webpack_require__(/*! ./components/ProfileComponent.vue */ "./resources/js/components/ProfileComponent.vue")["default"]); //se importa el componente de producto por tipo
+
 Vue.component('producttype-component', __webpack_require__(/*! ./components/ProductTypeComponent.vue */ "./resources/js/components/ProductTypeComponent.vue")["default"]);
-Vue.component('star-rating', vue_star_rating__WEBPACK_IMPORTED_MODULE_0___default.a);
+Vue.component('cart', __webpack_require__(/*! ./components/CartComponent.vue */ "./resources/js/components/CartComponent.vue")["default"]); //se importa el componente de vue star rating
 
-window.swal = sweetalert2__WEBPACK_IMPORTED_MODULE_1___default.a;
+Vue.component('star-rating', vue_star_rating__WEBPACK_IMPORTED_MODULE_0___default.a); //se importa el paquete de sweet alert
+
+
+window.swal = sweetalert2__WEBPACK_IMPORTED_MODULE_1___default.a; //configuracion de sweet alert
+
 var toast = sweetalert2__WEBPACK_IMPORTED_MODULE_1___default.a.mixin({
   toast: true,
   position: 'top-end',
   showConfirmButton: false,
   timer: 3000
 });
-window.toast = toast;
-window.EventBus = new Vue();
+window.toast = toast; //evento de vue
+
+window.EventBus = new Vue(); //segundo evento de vue
+
 window.EventBus2 = new Vue();
+window.EventColor = new Vue(); //renderizador de vue
+
 var app = new Vue({
   el: '#app'
-}); //contante que almacena el boton
+}); //configuracion de login y registro
+//contante que almacena el boton
 
 var registerButton = document.getElementById('signUp');
 var signInButton = document.getElementById('signIn');
-var container = document.getElementById('container');
+var container = document.getElementById('container'); //evento click del boton de registro
+
 registerButton.addEventListener('click', function () {
   container.classList.add("right-panel-active");
-});
+}); //evento click del boton de login
+
 signInButton.addEventListener('click', function () {
   container.classList.remove("right-panel-active");
 });
@@ -59320,8 +59556,8 @@ __webpack_require__.r(__webpack_exports__);
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! /home/tiburonchan3/Restaurant/resources/js/app.js */"./resources/js/app.js");
-module.exports = __webpack_require__(/*! /home/tiburonchan3/Restaurant/resources/sass/app.scss */"./resources/sass/app.scss");
+__webpack_require__(/*! C:\Users\TZTK\Desktop\Vue_Laravel\resources\js\app.js */"./resources/js/app.js");
+module.exports = __webpack_require__(/*! C:\Users\TZTK\Desktop\Vue_Laravel\resources\sass\app.scss */"./resources/sass/app.scss");
 
 
 /***/ })

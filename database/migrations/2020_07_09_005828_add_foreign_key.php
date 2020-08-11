@@ -14,8 +14,6 @@ class AddForeignKey extends Migration
     public function up()
     {
         Schema::table('ratings', function (Blueprint $table) {
-            $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('product_id');
             $table->foreign("user_id")
             ->references("id")
             ->on("users")

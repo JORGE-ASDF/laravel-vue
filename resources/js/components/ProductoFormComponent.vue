@@ -1,5 +1,6 @@
 <template>
     <div class="container mb-5">
+        <button @click="OtroColor">Otro color XD</button>
         <button class="btn btn-primary float-right mb-5" type="button" data-target="#product-modal" data-toggle="modal">Agregar</button>
         <div id="product-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
@@ -67,6 +68,10 @@ export default {
         })
     },
     methods: {
+        OtroColor(){
+            let color = "naranja";
+            EventColor.$emit('otro-color',color);
+        },
         onImageChange(e) {
             let files = e.target.files || e.dataTransfer.files;
             if (!files.length)

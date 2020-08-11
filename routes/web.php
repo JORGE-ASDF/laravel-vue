@@ -83,3 +83,7 @@ Route::get('/profile', function () {
 })->middleware('auth');
 //recibe los datos para editar la info del usuario
 Route::post('/user/update','UserController@update');
+//Rutas para ventas
+Route::get('/ventas','VentasController@index');
+//mostrar las ventas
+Route::get('/ventas/all','VentasController@show');

@@ -33,85 +33,8 @@
             </div>
         </div>
     </div>
-    <div class="row" v-if="showDetail===true">
-        <div class="col-md-8 offset-2">
-            <div class="card">
-                <div class="card-body">
-                    <button class="btn close" @click="showDetail=false" type="button">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    <h5 class="card-title">{{detail.nombre}}</h5>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <ul>
-                                <li>{{detail.precio}}</li>
-                                <li>Categoria: {{detail.tipo}}</li>
-                                <br>
-                            </ul>
-                            <button class="btn btn-success btn-sm" @click="addCart(detail)">Ordenar</button>
-                            <div class="mt-5" v-if="!myRating.length">
-                                <p class="text-muted text-small">Puedes opinar acerca de este platillo</p>
-                                <star-rating :star-size="30" v-model="rating" :increment="0.5" text-class="custom-text" ></star-rating>
-                                <textarea placeholder="Escribe un comentario acerca de este producto" v-model="comment" name="comment" class="form-control mt-2 mb-2" id="comment" cols="4" rows="3"></textarea>
-                                <button @click="setRating(detail.id)" class="btn btn-primary btn-sm d-flex">Votar</button>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <img :src="'/images/'+detail.image" class=" img-thumbnail" alt="">
-                        </div>
-                    </div>
-                    <div>
-                        <p class="lead text-center text-muted">Comentarios acerca del producto</p>
-                        <div class="row mb-3" v-for="comment in AllRating" :key="comment.id">
-                            <div class="col-md-1">
-                                <img :src="'/images/'+comment.avatar" class="rounded-circle" alt="no-image" width="50" height="50">
-                            </div>
-                            <div class="col-md-11 pl-3">
-                                <p class="text-info">{{comment.user}}
-                                <star-rating :star-size="15" :read-only="true" :rating="comment.rating"></star-rating>
-                                <p class="text-justify text-muted text-small">{{comment.comment}}</p>
-                            </div>
-                       </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div id="myModalRight" class="modal fade modal-right" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Modal right</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <table class=" table table-striped text-left">
-                        <tbody>
-                            <tr v-for="(cart) in  carts" :key="cart.id">
-                                <td>
-                                    <img :src="'/images/'+cart.image" alt="" width="50" height="50">
-                                </td>
-                                <td>{{cart.nombre}}</td>
-                                <td>{{cart.precio}}</td>
-                                <td>{{cart.cantidad}}</td>
-                                <td>
-                                    <button @click="removeCart(cart)" class="btn btn-danger btn-sm">X</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    Total: ${{total}} &nbsp;
-                    <button @click="SaveOrder(carts)" class="btn btn-sm btn-success">
-                        checkout
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <detail v-if="showDetail===true"></detail>
+    <cart></cart>
 </div>
 </template>
 <script>
@@ -257,65 +180,11 @@ export default {
                 this.viewCart();
             }
         },
-        removeCart(cart){
-            /*variable que se creo para buscar el id del
-            producto que se eliminara del carrito*/
-            var f =_.find(this.carts,['id',cart.id]);
-            //se compreba que el id exista
-            if(typeof f == 'object'){
-                //variable que almacena la pocision del producto repetido
-                var index = _.indexOf(this.carts,f)
-                //se verifica que el producto a eliminar sea menor o igual a uno
-                if(this.carts[index].cantidad <= 1){
-                    //se elimina del arreglo de productos en el carrito
-                    this.carts.splice(cart,1);
-                    //se ejecuta el metodo que guarda el carrito para refrescar
-                    this.storeCart();
-                //si la cantidad es mayor a uno
-                }else{
-                    //la cantidad del producto disminuye uno
-                    this.carts[index].cantidad--
-                    //se ejecuta el metodo que guarda el carrito para refrescar
-                    this.storeCart();
-                }
-            }
-        },
-        //metodo que guarda el producto seleccionado en el carrito
-        storeCart(){
-            //variable que almacena el arreglo del producto convertido
-            let parsed = JSON.stringify(this.carts);
-            //se agrega el producto al carrito
-            localStorage.setItem('carts',parsed);
-            //se ejecuta el metodo para actualizar el carrito
-            this.viewCart();
-        },
-        //metodo que recibe el id del producto para obtener el detalle
-        Detail(id){
-            //se ejecuta el metodo para obtener el rating de producto con el id
-            this.ShowRating(id);
-            //se ejecuta el metodo para obtener el rating del usuario loggeado
-            this.MyRating(id);
-            //se envia a axios
-            axios
-            .get('/producto/detail/'+id)
-            //respuesta de axios
-            .then(resp=>{
-                //se almacena en el arreglo de detalle la data que envia laravel
-                this.detail=resp.data.data;
-                //se muestra el apartado de detalle y se oculta la lista de productos
-                this.showDetail=true;
-            })
-            //si ocurre un error
-            .catch(err=>{
-                //se muestra el error por consola
-                console.log(err.response.data)
-            })
-        },
         //metodo que recibe el id de un producto para obtener el rating
         ShowRating(id){
             //se envia un post por axios con el id
             axios
-            .post('/rating/all',{id:id})
+            .get('/rating/all',{id:id})
             //respuesta de axios
             .then(({data:datos})=>{
                 //se iguala el arreglo con la data que envia laravel
@@ -331,7 +200,7 @@ export default {
         MyRating(id){
             //se envia un post por axios
             axios
-            .post('/rating/show',{id:id})
+            .get('/rating/show',{id:id})
             //respuesta de axios
             .then(({data:datos})=>{
                 //se iguala el arreglo con la data que envia laravel

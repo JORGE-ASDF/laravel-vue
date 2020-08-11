@@ -18,51 +18,7 @@
                 </div>
             </div>
         </div>
-        <div class="row" v-if="showDetail===true">
-            <div class="col-md-8 offset-2">
-                <div class="card">
-                    <div class="card-body">
-                        <button class="btn close" @click="showDetail=false" type="button">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <h5 class="card-title">{{detail.nombre}}</h5>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <ul>
-                                    <li>{{detail.precio}}</li>
-                                    <li>Categoria: {{detail.tipo}}</li>
-                                    <br>
-                                </ul>
-                                <button class="btn btn-success btn-sm" @click="addCart(detail)">Ordenar</button>
-                                <div class="mt-5" v-if="!myRating.length">
-                                    <p class="text-muted text-small">Puedes opinar acerca de este platillo</p>
-                                    <star-rating :star-size="30" v-model="rating" :increment="0.5" text-class="custom-text" ></star-rating>
-                                    <textarea placeholder="Escribe un comentario acerca de este producto" v-model="comment" name="comment" class="form-control mt-2 mb-2" id="comment" cols="4" rows="3"></textarea>
-                                    <button @click="setRating(detail.id)" class="btn btn-primary btn-sm d-flex">Votar</button>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <img :src="'/images/'+detail.image" class=" img-thumbnail" alt="">
-                            </div>
-                        </div>
-                    <div>
-                        <p class="lead text-center text-muted">Comentarios acerca del producto</p>
-                            <div class="row mb-3" v-for="comment in AllRating" :key="comment.id">
-                                <div class="col-md-1">
-                                    <img :src="'/images/'+comment.avatar" class="rounded-circle" alt="no-image" width="50" height="50">
-                                </div>
-                                <div class="col-md-11 pl-3">
-                                    <p class="text-info">{{comment.user}}
-                                    <star-rating :star-size="15" :read-only="true" :rating="comment.rating"></star-rating>
-                                    <p class="text-justify text-muted text-small">{{comment.comment}}</p>
-                                </div>
-                                <hr>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <detail v-if="showDetail===true"></detail>
         <div v-if="showSearch===true" class="row">
             <p class="lead" v-if="!productSearch.length">No hay productos para mostrar</p>
             <div class="col-3"  v-for="(prod, index) in productSearch" :key="index">
@@ -98,8 +54,8 @@
                         <p class="text-primary">Categorias: <span class="text-dark text-small">{{producto.tipo}}</span></p>
                     </div>
                     <div class="card-footer" style="background: inherit; border-color: inherit;">
-                        <a role="button" @click="addCart(producto)" class="btn btn-sm btn-outline-success">Ordenar</a>
-                        <a href="#" class="btn-sm btn btn-outline-primary" @click="Detail(producto.id)">Ver Mas</a>
+                        <a role="button" @click="addCart(producto)" class="btn btn-sm btn-success">Ordenar</a>
+                        <a href="#" class="btn-sm btn btn-primary" @click="Detail(producto.id)">Ver Mas</a>
                     </div>
                 </div>
             </div>
@@ -131,41 +87,7 @@
                 Total: {{pagination.total_pages}}
             </div>
         </div>
-        <div id="myModalRight" class="modal fade modal-right" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Tu carrito</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <table class=" table table-striped text-left">
-                            <tbody>
-                                <tr v-for="(cart) in  carts" :key="cart.id">
-                                    <td>
-                                        <img :src="'/images/'+cart.image" alt="" width="50" height="50">
-                                    </td>
-                                    <td>{{cart.nombre}}</td>
-                                    <td>{{cart.precio}}</td>
-                                    <td>{{cart.cantidad}}</td>
-                                    <td>
-                                        <button @click="removeCart(cart)" class="btn btn-danger btn-sm">X</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="modal-footer">
-                        Total: ${{total}} &nbsp;
-                        <button @click="SaveOrder(carts)" class="btn btn-sm btn-success">
-                            checkout
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <cart></cart>
     </div>
 </template>
 <script>
@@ -202,46 +124,14 @@ export default {
         getRating:false,
         //obtiene los datos del producto que se busco
         productSearch:[],
-        //obtiene los datos del detalle del producto
-        detail:[],
-        //se inicializa el rating del producto
-        rating:0,
-        //variable de comentario del rating
-        comment:'',
-        //obtiene el rating del usuario loggeado
-        myRating:[],
-        //obtiene todos los ratings del producto
-        AllRating:[]
+
      }
  },
  methods: {
     //envia un post a laravel para agregar el rating
-    setRating(id){
-        //se envia por axios
-        axios
-        .post('/rating/new',{product_id:id,comment:this.comment,rating:this.rating})
-        //respuesta de que se recibe
-        .then(resp=>{
-            //se ejecuta el metodo para mostrar todos los rating
-            this.ShowRating(id);
-            //se ejecuta el metodo para mostrar el rating del usuario loggeado
-            this.MyRating(id);
-        })
-     },
+
     //metodo para mostrar los productos del carrito
-    viewCart(){
-        //se comprueba que exitan productos en el carrito
-        if(localStorage.getItem('carts')){
-            //se iguala la variable al arreglo de productos del carrito
-            this.carts = JSON.parse(localStorage.getItem('carts'));
-            //se inicializa la cantidad de productos del carrito
-            this.badge = this.carts.length;
-            //se establece el total de la orden
-            this.total = this.carts.reduce((total,item)=>{
-                return total + item.cantidad* item.precio
-            },0);
-        }
-    },
+
     //metodo para agregar al carrito
     addCart(prod){
         //variable que se usa para buscar un producto en el carrito
@@ -288,30 +178,6 @@ export default {
             this.storeCart();
             //se ejecuta el metodo para ver los productos del carrito
             this.viewCart();
-        }
-    },
-    //metodo para eliminar el producto del carrito
-    removeCart(cart){
-        //variable que busca si el producto ya existe en el carrito
-        var f =_.find(this.carts,['id',cart.id]);
-        //se verifica si existe el producto
-        if(typeof f == 'object'){
-            //se guarda la pocision del producto repetido
-            var index = _.indexOf(this.carts,f)
-            //se verifica que la cantidad sea menor o igual a uno
-            if(this.carts[index].cantidad <= 1){
-                //se elimina el producto del carrito
-                this.carts.splice(cart,1);
-                //se ejecuta el metodo de guardar en el carrito
-                this.storeCart();
-            }
-            //si la cantidad del producto es mayor a uno
-            else{
-                //se reduce la cantidad del producto
-                this.carts[index].cantidad--
-                //se ejecuta el metodo para guardar el carrito
-                this.storeCart();
-            }
         }
     },
     //metodo que guarda el producto seleccionado en el carrito
@@ -407,60 +273,6 @@ export default {
             this.showSearch = true
         })
     },
-    //metodo para ver el detalle del producto
-    Detail(id){
-        //se ejecuta el metodo para obtener el rating
-        this.ShowRating(id);
-        //se ejecuta el metodo para obtener el rating del usuario loggeado
-        this.MyRating(id);
-        //se recibe un get
-        axios
-        .get('/producto/detail/'+id)
-        //respuesta de laravel
-        .then(resp=>{
-            //la variable recibe el arreglo de datos que envia laravel
-            this.detail=resp.data.data;
-            //se muestra la seccion de detalle
-            this.showDetail=true;
-        })
-        //en caso de error
-        .catch(err=>{
-            //se muestra el mensaje de error
-            console.log(err.response.data)
-        })
-    },
-    //metodo que obtiene el rating del producto seleccionado
-    ShowRating(id){
-        //se envia por axios el id por post a laravel
-        axios
-        .post('/rating/all',{id:id})
-        //respuesta de laravel
-        .then(({data:datos})=>{
-            //la varaiabel recibe el arreglo de datos
-            this.AllRating = datos.data;
-        })
-        //en caso de error
-        .catch(err=>{
-            //se muestra el mensaje de error
-            console.log(err.response.data)
-        })
-    },
-    //metodo para obtener el rating del usuario loggeado
-    MyRating(id){
-        //se envia un post con axios a laravel con el id del producto
-        axios
-        .post('/rating/show',{id:id})
-        //respuesta de laravel
-        .then(({data:datos})=>{
-            //la variable recibe el arreglo de datos
-            this.myRating = datos.data;
-        })
-        //en caso de error
-       .catch(err=>{
-           //se muestra el mensaje de error
-            console.log(err.response.data)
-        })
-    }
  },
  //metodos que se ejuctan al inicializar el componente
  mounted() {
